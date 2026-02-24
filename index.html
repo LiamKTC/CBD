@@ -18,13 +18,14 @@
   </header>
 
   <main class="grid">
+    <!-- Breakers -->
     <section class="card">
       <h2>Add breaker</h2>
 
-      <label class="lbl">Name</label>
+      <label class="lbl" for="b_name">Name</label>
       <input id="b_name" placeholder="e.g., Final MCB 20A Type C"/>
 
-      <label class="lbl">Breaker model</label>
+      <label class="lbl" for="b_model">Breaker model</label>
       <select id="b_model">
         <option value="mcb">MCB (B/C/D approximation)</option>
         <option value="mccb">MCCB/ACB (L/S/I approximation)</option>
@@ -33,17 +34,18 @@
 
       <div class="row2">
         <div>
-          <label class="lbl">Rated current In (A)</label>
-          <input id="b_In" type="number" value="20" min="1"/>
+          <label class="lbl" for="b_In">Rated current In (A)</label>
+          <input id="b_In" type="number" value="20" min="1" inputmode="decimal"/>
         </div>
         <div>
-          <label class="lbl">Tag (optional)</label>
+          <label class="lbl" for="b_tag">Tag (optional)</label>
           <input id="b_tag" placeholder="downstream / upstream"/>
         </div>
       </div>
 
+      <!-- MCB -->
       <div id="mcb_fields">
-        <label class="lbl">MCB Type</label>
+        <label class="lbl" for="b_mcbType">MCB Type</label>
         <select id="b_mcbType">
           <option value="B">B</option>
           <option value="C" selected>C</option>
@@ -52,81 +54,108 @@
         <p class="hint">Instantaneous band approx: B=3–5×In, C=5–10×In, D=10–20×In</p>
       </div>
 
+      <!-- MCCB -->
       <div id="mccb_fields" class="hidden">
         <div class="row2">
           <div>
-            <label class="lbl">Long-time pickup Ir (A)</label>
-            <input id="b_Ir" type="number" value="100" min="1"/>
+            <label class="lbl" for="b_Ir">Long-time pickup Ir (A)</label>
+            <input id="b_Ir" type="number" value="100" min="0" inputmode="decimal"/>
           </div>
           <div>
-            <label class="lbl">Thermal slope p</label>
-            <input id="b_p" type="number" value="2.0" step="0.1"/>
+            <label class="lbl" for="b_p">Thermal slope p</label>
+            <input id="b_p" type="number" value="2.0" step="0.1" min="0.1" inputmode="decimal"/>
           </div>
         </div>
 
         <div class="row2">
           <div>
-            <label class="lbl">Short-time pickup Isd (A) (0 = off)</label>
-            <input id="b_Isd" type="number" value="500" min="0"/>
+            <label class="lbl" for="b_Isd">Short-time pickup Isd (A) (0 = off)</label>
+            <input id="b_Isd" type="number" value="500" min="0" inputmode="decimal"/>
           </div>
           <div>
-            <label class="lbl">Short-time delay tsd (s) (0 = off)</label>
-            <input id="b_tsd" type="number" value="0.2" step="0.01" min="0"/>
+            <label class="lbl" for="b_tsd">Short-time delay tsd (s) (0 = off)</label>
+            <input id="b_tsd" type="number" value="0.2" step="0.01" min="0" inputmode="decimal"/>
           </div>
         </div>
 
-        <label class="lbl">Short-time mode</label>
+        <label class="lbl" for="b_stdMode">Short-time mode</label>
         <select id="b_stdMode">
           <option value="definite" selected>Definite time</option>
           <option value="i2t">I²t (time decreases with current)</option>
         </select>
 
-        <label class="lbl">Instantaneous pickup Ii (A) (0 = off)</label>
-        <input id="b_Ii" type="number" value="1500" min="0"/>
+        <label class="lbl" for="b_Ii">Instantaneous pickup Ii (A) (0 = off)</label>
+        <input id="b_Ii" type="number" value="1500" min="0" inputmode="decimal"/>
       </div>
 
+      <!-- CSV -->
       <div id="csv_fields" class="hidden">
-        <label class="lbl">Upload CSV (optional)</label>
+        <label class="lbl" for="b_csvFile">Upload CSV (optional)</label>
         <input id="b_csvFile" type="file" accept=".csv,text/csv"/>
 
-        <label class="lbl">Or paste CSV data</label>
-        <textarea id="b_csvText" rows="9" placeholder="Example:
+        <label class="lbl" for="b_csvText">Or paste CSV data</label>
+        <textarea
+          id="b_csvText"
+          rows="10"
+          placeholder="Single curve:
+current_A,time_s
+100,120
+...
+
+Min/max band:
 curve,current_A,time_s
 min,100,140
-..."></textarea>
+max,100,100
+..."
+        ></textarea>
+
+        <div class="rowBtns">
+          <button id="btn_download_csv_single" class="btn btnGhost" type="button">
+            Download sample (single)
+          </button>
+          <button id="btn_download_csv_band" class="btn btnGhost" type="button">
+            Download sample (min/max)
+          </button>
+          <button id="btn_load_csv_band" class="btn btnGhost" type="button">
+            Load sample into textbox
+          </button>
+        </div>
 
         <p class="hint">
-          Accepts either <code>current_A,time_s</code> (single curve) or
-          <code>curve,current_A,time_s</code> with curve=min/max (shaded band).
+          Supported headers:
+          <code>current_A,time_s</code> (single curve) or
+          <code>curve,current_A,time_s</code> (curve=min/max).
+          Lines starting with <code>#</code> are ignored.
         </p>
       </div>
 
       <div class="rowBtns">
-        <button id="btn_add_breaker" class="btn">Add breaker</button>
-        <button id="btn_clear_breakers" class="btn btnGhost">Clear breakers</button>
+        <button id="btn_add_breaker" class="btn" type="button">Add breaker</button>
+        <button id="btn_clear_breakers" class="btn btnGhost" type="button">Clear breakers</button>
       </div>
 
       <h3 class="mt">Breakers</h3>
       <div id="breaker_list" class="list"></div>
     </section>
 
+    <!-- Faults + Report -->
     <section class="card">
       <h2>Fault markers</h2>
 
       <div class="row2">
         <div>
-          <label class="lbl">Label</label>
+          <label class="lbl" for="f_label">Label</label>
           <input id="f_label" placeholder="e.g., DB1 PSCC"/>
         </div>
         <div>
-          <label class="lbl">Fault current (A)</label>
-          <input id="f_I" type="number" value="8500" min="1"/>
+          <label class="lbl" for="f_I">Fault current (A)</label>
+          <input id="f_I" type="number" value="8500" min="1" inputmode="decimal"/>
         </div>
       </div>
 
       <div class="rowBtns">
-        <button id="btn_add_fault" class="btn">Add fault marker</button>
-        <button id="btn_clear_faults" class="btn btnGhost">Clear markers</button>
+        <button id="btn_add_fault" class="btn" type="button">Add fault marker</button>
+        <button id="btn_clear_faults" class="btn btnGhost" type="button">Clear markers</button>
       </div>
 
       <div id="fault_list" class="list"></div>
@@ -135,10 +164,11 @@ min,100,140
       <div id="report"></div>
 
       <p class="fineprint mt">
-        Approx breakers are educational. Imported CSV curves can match manufacturer data closely (depending on your source points).
+        Approximate breakers are educational. Imported CSV curves can closely match manufacturer data (depending on points).
       </p>
     </section>
 
+    <!-- Plot -->
     <section class="card chartCard">
       <div id="plot" class="plot"></div>
     </section>
