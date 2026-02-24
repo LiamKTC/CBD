@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>CB TCC Plotter + Fault Coordination</title>
+
+  <link rel="stylesheet" href="./styles.css"/>
+  <script src="https://cdn.plot.ly/plotly-2.30.0.min.js"></script>
+</head>
+
+<body>
+  <header class="header">
+    <h1>CB TCC Plotter</h1>
+    <p class="sub">
+      Overlay time–current curves and check coordination at fault markers (“who trips first”).
+    </p>
+  </header>
+
+  <main class="grid">
+    <section class="card">
+      <h2>Add breaker</h2>
+
+      <label class="lbl">Name</label>
+      <input id="b_name" placeholder="e.g., Final MCB 20A Type C"/>
+
+      <label class="lbl">Breaker model</label>
+      <select id="b_model">
+        <option value="mcb">MCB (B/C/D approximation)</option>
+        <option value="mccb">MCCB/ACB (L/S/I approximation)</option>
+        <option value="csv">Imported CSV curve (accurate)</option>
+      </select>
+
+      <div class="row2">
+        <div>
+          <label class="lbl">Rated current In (A)</label>
+          <input id="b_In" type="number" value="20" min="1"/>
+        </div>
+        <div>
+          <label class="lbl">Tag (optional)</label>
+          <input id="b_tag" placeholder="downstream / upstream"/>
+        </div>
+      </div>
+
+      <div id="mcb_fields">
+        <label class="lbl">MCB Type</label>
+        <select id="b_mcbType">
+          <option value="B">B</option>
+          <option value="C" selected>C</option>
+          <option value="D">D</option>
+        </select>
+        <p class="hint">Instantaneous band approx: B=3–5×In, C=5–10×In, D=10–20×In</p>
+      </div>
+
+      <div id="mccb_fields" class="hidden">
+        <div class="row2">
+          <div>
+            <label class="lbl">Long-time pickup Ir (A)</label>
+            <input id="b_Ir" type="number" value="100" min="1"/>
+          </div>
+          <div>
+            <label class="lbl">Thermal slope p</label>
+            <input id="b_p" type="number" value="2.0" step="0.1"/>
+          </div>
+        </div>
+
+        <div class="row2">
+          <div>
+            <label class="lbl">Short-time pickup Isd (A) (0 = off)</label>
+            <input id="b_Isd" type="number" value="500" min="0"/>
+          </div>
+          <div>
+            <label class="lbl">Short-time delay tsd (s) (0 = off)</label>
+            <input id="b_tsd" type="number" value="0.2" step="0.01" min="0"/>
+          </div>
+        </div>
+
+        <label class="lbl">Short-time mode</label>
+        <select id="b_stdMode">
+          <option value="definite" selected>Definite time</option>
+          <option value="i2t">I²t (time decreases with current)</option>
+        </select>
+
+        <label class="lbl">Instantaneous pickup Ii (A) (0 = off)</label>
+        <input id="b_Ii" type="number" value="1500" min="0"/>
+      </div>
+
+      <div id="csv_fields" class="hidden">
+        <label class="lbl">Upload CSV (optional)</label>
+        <input id="b_csvFile" type="file" accept=".csv,text/csv"/>
+
+        <label class="lbl">Or paste CSV data</label>
+        <textarea id="b_csvText" rows="9" placeholder="Example:
+curve,current_A,time_s
+min,100,140
+..."></textarea>
+
+        <p class="hint">
+          Accepts either <code>current_A,time_s</code> (single curve) or
+          <code>curve,current_A,time_s</code> with curve=min/max (shaded band).
+        </p>
+      </div>
+
+      <div class="rowBtns">
+        <button id="btn_add_breaker" class="btn">Add breaker</button>
+        <button id="btn_clear_breakers" class="btn btnGhost">Clear breakers</button>
+      </div>
+
+      <h3 class="mt">Breakers</h3>
+      <div id="breaker_list" class="list"></div>
+    </section>
+
+    <section class="card">
+      <h2>Fault markers</h2>
+
+      <div class="row2">
+        <div>
+          <label class="lbl">Label</label>
+          <input id="f_label" placeholder="e.g., DB1 PSCC"/>
+        </div>
+        <div>
+          <label class="lbl">Fault current (A)</label>
+          <input id="f_I" type="number" value="8500" min="1"/>
+        </div>
+      </div>
+
+      <div class="rowBtns">
+        <button id="btn_add_fault" class="btn">Add fault marker</button>
+        <button id="btn_clear_faults" class="btn btnGhost">Clear markers</button>
+      </div>
+
+      <div id="fault_list" class="list"></div>
+
+      <h3 class="mt">Coordination report</h3>
+      <div id="report"></div>
+
+      <p class="fineprint mt">
+        Approx breakers are educational. Imported CSV curves can match manufacturer data closely (depending on your source points).
+      </p>
+    </section>
+
+    <section class="card chartCard">
+      <div id="plot" class="plot"></div>
+    </section>
+  </main>
+
+  <script type="module" src="./app.js"></script>
+</body>
+</html>
